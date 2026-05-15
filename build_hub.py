@@ -20,51 +20,31 @@ CACHE = PUBLIC / "cache"
 PUBLIC.mkdir(exist_ok=True)
 CACHE.mkdir(exist_ok=True)
 
+GH_OWNER = "lcchang224"
 SOURCES = {
-    "digest": "https://digest.lcchema.cc/latest.json",
-    "report": "https://report.lcchema.cc/latest.json",
+    "digest": f"https://raw.githubusercontent.com/{GH_OWNER}/hema-onc-digest/main/manifests/latest.json",
+    "report": f"https://raw.githubusercontent.com/{GH_OWNER}/hematology-uptodate/main/manifests/latest.json",
 }
 
 
 def fetch(name: str, url: str) -> dict:
-    """Fetch manifest with retry; CF Pages may not have finished rebuilding when
-    a repository_dispatch arrives. Wait up to ~3 min for fresh content."""
-    import time
+    """Fetch manifest from raw.githubusercontent.com. No retry needed — raw.gh
+    reflects the latest commit instantly, so there's no CF-Pages build lag.
+    Falls back to cached copy if the request fails."""
     cache_path = CACHE / f"{name}.json"
-    cached_gen = ""
-    if cache_path.exists():
-        try:
-            cached_gen = json.loads(cache_path.read_text(encoding="utf-8")).get("generated", "")
-        except Exception:
-            pass
-
-    last_exc = None
-    for attempt in range(6):           # 0,30,60,90,120,150 seconds
-        try:
-            r = httpx.get(url, timeout=20, follow_redirects=True)
-            r.raise_for_status()
-            data = r.json()
-            gen = data.get("generated", "")
-            # Accept if it's newer than cache, or if we've already waited a while
-            if gen and gen != cached_gen:
-                cache_path.write_text(
-                    json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-                print(f"  [ok]   {name}: fresh manifest (attempt {attempt+1})")
-                return data
-            if attempt == 5:
-                # Final attempt — accept whatever we got, even if same as cache
-                print(f"  [ok]   {name}: manifest unchanged after retries, using as-is")
-                return data
-            print(f"  [wait] {name}: manifest still stale, retrying in 30s…")
-        except Exception as exc:
-            last_exc = exc
-            print(f"  [wait] {name}: fetch error ({exc}); retrying in 30s…")
-        time.sleep(30)
-
-    print(f"  [warn] {name}: all retries failed ({last_exc}); using cache")
-    if cache_path.exists():
-        return json.loads(cache_path.read_text(encoding="utf-8"))
-    return {}
+    try:
+        r = httpx.get(url, timeout=20, follow_redirects=True)
+        r.raise_for_status()
+        data = r.json()
+        cache_path.write_text(
+            json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"  [ok]   {name}: fetched + cached")
+        return data
+    except Exception as exc:
+        print(f"  [warn] {name}: fetch failed ({exc}); using cache")
+        if cache_path.exists():
+            return json.loads(cache_path.read_text(encoding="utf-8"))
+        return {}
 
 
 def render_digest_card(item: dict) -> str:
