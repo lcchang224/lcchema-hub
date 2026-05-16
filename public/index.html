@@ -1,81 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="color-scheme" content="light dark">
-<title>lcchema.cc — Hematology Hub</title>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#fafafa;--surface:#fff;--border:#e0e0e0;--text:#212121;--muted:#757575;
---accent:#37474f;--accent2:#00838f;--mal:#1a237e;--mal-a:#b71c1c;
---ben:#1b5e20;--ben-a:#e65100;--dig:#a04a1c;--dig-a:#bf6433;--radius:10px}
-@media (prefers-color-scheme:dark){:root{--bg:#121212;--surface:#1e1e1e;--border:#333;
---text:#e0e0e0;--muted:#9e9e9e;--accent:#90a4ae;--accent2:#4dd0e1;
---mal:#7986cb;--mal-a:#ef5350;--ben:#81c784;--ben-a:#ffb74d;--dig:#d49374;--dig-a:#bf8362}}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-background:var(--bg);color:var(--text);line-height:1.6;font-size:16px;min-height:100vh}
-.wrap{max-width:780px;margin:0 auto;padding:2.5rem 1.25rem 3rem}
-header{margin-bottom:2.5rem;text-align:center}
-header h1{font-size:1.6rem;font-weight:700;letter-spacing:-.01em;color:var(--accent)}
-header p{color:var(--muted);font-size:.9rem;margin-top:.4rem}
-section{margin-bottom:2.25rem}
-.section-head{display:flex;align-items:baseline;gap:.6rem;margin-bottom:.9rem;
-padding-bottom:.4rem;border-bottom:2px solid var(--accent2)}
-.section-head h2{font-size:1.05rem;font-weight:700;color:var(--accent)}
-.section-head .sub{font-size:.78rem;color:var(--muted)}
-.cards{display:flex;flex-direction:column;gap:.55rem}
-.card,.card-week{background:var(--surface);border:1px solid var(--border);
-border-radius:var(--radius);padding:.85rem 1rem;display:flex;align-items:center;
-justify-content:space-between;text-decoration:none;color:var(--text);
-transition:transform .12s,box-shadow .12s,border-color .12s}
-.card:hover{border-color:var(--dig);transform:translateY(-1px);
-box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.card-date{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
-font-weight:600;font-size:.95rem;color:var(--dig)}
-section.reports .card-date{color:var(--accent)}
-.card-arrow{color:var(--muted);font-size:1.1rem}
-.card-links{display:flex;gap:.5rem}
-.track{font-size:.82rem;font-weight:600;padding:.3rem .7rem;border-radius:6px;
-text-decoration:none;border:1px solid;transition:background .12s}
-.track.malignant{color:var(--mal);border-color:var(--mal)}
-.track.malignant:hover{background:var(--mal);color:#fff}
-.track.benign{color:var(--ben);border-color:var(--ben)}
-.track.benign:hover{background:var(--ben);color:#fff}
-.empty{color:var(--muted);font-style:italic;font-size:.9rem;padding:.5rem 0}
-footer{margin-top:3rem;text-align:center;color:var(--muted);font-size:.75rem}
-footer a{color:var(--accent2);text-decoration:none}
-footer a:hover{text-decoration:underline}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>lcchema.cc</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f7fa;
+      color: #333333;
+      min-height: 100vh;
+      padding: 2.5rem 1.5rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      color: #333333;
+    }
+    header p {
+      margin-top: 0.35rem;
+      font-size: 0.82rem;
+      color: #999;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+
+    .panel {
+      border-radius: 10px;
+      border: 1px solid #e0e0e0;
+      padding: 1.25rem 1.4rem;
+    }
+    .panel.digest { border-top: 3px solid #5b9bd5; background: #f4f9ff; }
+    .panel.report  { border-top: 3px solid #5cb87a; background: #f8fefb; }
+
+    .panel h2 {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.9rem;
+    }
+    .digest h2 { color: #5b9bd5; }
+    .report  h2 { color: #5cb87a; }
+
+    .item {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .item:last-child { border-bottom: none; }
+
+    .item a.date-link {
+      font-size: 0.88rem;
+      font-weight: 500;
+      text-decoration: none;
+      display: block;
+    }
+    .digest .item a.date-link { color: #3a7fc1; }
+    .digest .item a.date-link:hover { color: #2563a8; text-decoration: underline; }
+    .report  .item a.date-link { color: #3aab6a; }
+    .report  .item a.date-link:hover { color: #228b50; text-decoration: underline; }
+
+    .item-week {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 0.15rem;
+    }
+
+    .item-links {
+      display: flex;
+      gap: 0.75rem;
+    }
+    .item-links a {
+      font-size: 0.78rem;
+      text-decoration: none;
+      color: #3aab6a;
+      opacity: 0.8;
+    }
+    .item-links a:hover { opacity: 1; text-decoration: underline; }
+
+    .status { font-size: 0.82rem; color: #aaa; padding: 0.3rem 0; }
+
+    footer {
+      text-align: center;
+      margin-top: 2.5rem;
+      font-size: 0.72rem;
+      color: #bbb;
+    }
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>🩸 Hematology Hub</h1>
-    <p>Daily digest &middot; Weekly reports &middot; NCKUH Hematology</p>
-  </header>
 
-  <section class="digests">
-    <div class="section-head">
-      <h2>📰 Daily Digest</h2>
-      <span class="sub">latest 5</span>
-    </div>
-    <div class="cards"><a class="card" href="https://digest.lcchema.cc/hema_onc_digest_2026-05-14.html"><span class="card-date">2026-05-14</span><span class="card-arrow">→</span></a><a class="card" href="https://digest.lcchema.cc/hema_onc_digest_2026-05-13.html"><span class="card-date">2026-05-13</span><span class="card-arrow">→</span></a><a class="card" href="https://digest.lcchema.cc/hema_onc_digest_2026-05-12.html"><span class="card-date">2026-05-12</span><span class="card-arrow">→</span></a><a class="card" href="https://digest.lcchema.cc/hema_onc_digest_2026-05-11.html"><span class="card-date">2026-05-11</span><span class="card-arrow">→</span></a><a class="card" href="https://digest.lcchema.cc/hema_onc_digest_2026-05-10.html"><span class="card-date">2026-05-10</span><span class="card-arrow">→</span></a></div>
-  </section>
+<header>
+  <h1>lcchema.cc</h1>
+  <p id="updated">Loading…</p>
+</header>
 
-  <section class="reports">
-    <div class="section-head">
-      <h2>📋 Weekly Report</h2>
-      <span class="sub">latest 3 weeks &middot; malignant &amp; benign tracks</span>
-    </div>
-    <div class="cards"><div class="card-week"><span class="card-date">2026-W20</span><div class="card-links"><a class="track malignant" href="https://report.lcchema.cc/malignant-2026-W20.html">Malignant</a><a class="track benign" href="https://report.lcchema.cc/benign-2026-W20.html">Benign</a></div></div><div class="card-week"><span class="card-date">2026-W19</span><div class="card-links"><a class="track malignant" href="https://report.lcchema.cc/malignant-2026-W19.html">Malignant</a><a class="track benign" href="https://report.lcchema.cc/benign-2026-W19.html">Benign</a></div></div></div>
-  </section>
-
-  <footer>
-    Built 2026-05-15 23:46 UTC &middot;
-    <a href="https://digest.lcchema.cc">digest archive</a> &middot;
-    <a href="https://report.lcchema.cc">report archive</a>
-  </footer>
+<div class="grid">
+  <div class="panel digest">
+    <h2>Daily Digest</h2>
+    <div id="digest-list"><p class="status">Loading…</p></div>
+  </div>
+  <div class="panel report">
+    <h2>Weekly Report</h2>
+    <div id="report-list"><p class="status">Loading…</p></div>
+  </div>
 </div>
+
+<footer>lcchema.cc &mdash; internal</footer>
+
+<script>
+  const DIGEST_URL = "https://raw.githubusercontent.com/lcchang224/hema-onc-digest/main/manifests/latest.json";
+  const REPORT_URL = "https://raw.githubusercontent.com/lcchang224/hematology-uptodate/main/manifests/latest.json";
+
+  function relativeTime(isoStr) {
+    const diff = Date.now() - new Date(isoStr).getTime();
+    const h = Math.floor(diff / 36e5);
+    if (h < 1)  return "just now";
+    if (h < 24) return `${h}h ago`;
+    return `${Math.floor(h / 24)}d ago`;
+  }
+
+  async function loadDigest() {
+    const el = document.getElementById("digest-list");
+    try {
+      const data = await fetch(DIGEST_URL).then(r => r.json());
+      el.innerHTML = data.items.map(item => `
+        <div class="item">
+          <a class="date-link" href="${item.url}" target="_blank">${item.date}</a>
+        </div>`).join("");
+      return data.generated;
+    } catch {
+      el.innerHTML = `<p class="status">Failed to load.</p>`;
+    }
+  }
+
+  async function loadReport() {
+    const el = document.getElementById("report-list");
+    try {
+      const data = await fetch(REPORT_URL).then(r => r.json());
+      el.innerHTML = data.weeks.map(w => `
+        <div class="item">
+          <div class="item-week">${w.week}</div>
+          <div class="item-links">
+            <a href="${w.benign_url}"    target="_blank">Benign &#8594;</a>
+            <a href="${w.malignant_url}" target="_blank">Malignant &#8594;</a>
+          </div>
+        </div>`).join("");
+      return data.generated;
+    } catch {
+      el.innerHTML = `<p class="status">Failed to load.</p>`;
+    }
+  }
+
+  Promise.all([loadDigest(), loadReport()]).then(([dGen, rGen]) => {
+    const latest = [dGen, rGen].filter(Boolean).sort().at(-1);
+    document.getElementById("updated").textContent = latest
+      ? `Updated ${relativeTime(latest)}`
+      : "lcchema.cc";
+  });
+</script>
+
 </body>
 </html>
